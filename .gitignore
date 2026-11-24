@@ -1,0 +1,46 @@
+# .env — your actual keys (never commit secrets)
+.env
+.env.local
+.env.*.local
+
+# Streamlit local credentials
+.streamlit/credentials.toml
+
+# Uploaded resumes and generated session files
+data/uploads/
+data/exports/
+data/temp/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/

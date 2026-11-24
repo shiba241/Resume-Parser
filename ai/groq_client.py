@@ -36,14 +36,16 @@ def _get_client():
     Create and return a Groq client.
     Validates that the API key is set before creating the client.
     """
-    if not GROQ_API_KEY:
+    import config.settings as s
+    api_key = s._get_secret_or_env("GROQ_API_KEY", GROQ_API_KEY)
+    if not api_key:
         raise GroqAPIError(
-            "GROQ_API_KEY is not set. Please add it to your .env file.\n"
+            "GROQ_API_KEY is not set. Please add it to your .env file or Streamlit Cloud Secrets.\n"
             "Get your key at: https://console.groq.com/keys"
         )
     try:
         from groq import Groq
-        return Groq(api_key=GROQ_API_KEY)
+        return Groq(api_key=api_key)
     except ImportError:
         raise GroqAPIError(
             "The 'groq' package is not installed. Run: pip install groq"

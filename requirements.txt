@@ -24,7 +24,6 @@ pandas>=2.2.0             # CSV export + data manipulation
 
 # Utilities
 python-dotenv>=1.0.0      # .env file support
-python-magic-bin>=0.4.14  # MIME type detection (Windows)
 
 # Dev / testing
 pytest>=8.0.0

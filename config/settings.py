@@ -14,11 +14,24 @@ _env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=_env_path)
 
 
+def _get_secret_or_env(key: str, default: str = "") -> str:
+    """Retrieve config from environment variable or Streamlit Cloud Secrets."""
+    val = os.getenv(key)
+    if not val:
+        try:
+            import streamlit as st
+            if hasattr(st, "secrets") and key in st.secrets:
+                val = str(st.secrets[key])
+        except Exception:
+            pass
+    return (val if val is not None else default).strip("\"'")
+
+
 # ---------------------------------------------------------------------------
 # Groq API
 # ---------------------------------------------------------------------------
-GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "").strip("\"'")
-GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile").strip("\"'")
+GROQ_API_KEY: str = _get_secret_or_env("GROQ_API_KEY", "")
+GROQ_MODEL: str = _get_secret_or_env("GROQ_MODEL", "openai/gpt-oss-120b")
 GROQ_TEMPERATURE: float = float(os.getenv("GROQ_TEMPERATURE", "0.1"))
 GROQ_MAX_TOKENS: int = int(os.getenv("GROQ_MAX_TOKENS", "8000"))
 GROQ_MAX_RETRIES: int = int(os.getenv("GROQ_MAX_RETRIES", "3"))
@@ -26,10 +39,10 @@ GROQ_MAX_RETRIES: int = int(os.getenv("GROQ_MAX_RETRIES", "3"))
 # ---------------------------------------------------------------------------
 # Tesseract OCR
 # ---------------------------------------------------------------------------
-TESSERACT_PATH: str = os.getenv(
+TESSERACT_PATH: str = _get_secret_or_env(
     "TESSERACT_PATH",
     r"C:\Program Files\Tesseract-OCR\tesseract.exe",
-).strip("\"'")
+)
 
 # ---------------------------------------------------------------------------
 # Processing limits
@@ -66,8 +79,9 @@ CONFIDENCE_NEEDS_REVIEW = 50
 def validate_config() -> list[str]:
     """Return a list of configuration problems, empty if all is good."""
     problems: list[str] = []
-    if not GROQ_API_KEY:
-        problems.append("GROQ_API_KEY is not set in .env")
-    if GROQ_API_KEY and len(GROQ_API_KEY) < 20:
+    key = _get_secret_or_env("GROQ_API_KEY", GROQ_API_KEY)
+    if not key:
+        problems.append("GROQ_API_KEY is not set (add to .env or Streamlit Cloud Secrets)")
+    elif len(key) < 20:
         problems.append("GROQ_API_KEY looks invalid (too short)")
     return problems
